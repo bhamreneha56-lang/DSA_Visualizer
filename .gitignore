@@ -1,0 +1,22 @@
+# Node dependencies and build artifacts
+node_modules/
+dist/
+build/
+.env
+*.log
+
+# C++ build artifacts
+*.exe
+*.o
+*.obj
+*.pdb
+*.ilk
+
+# System / OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Large binary / docs (optional)
+*.pdf
