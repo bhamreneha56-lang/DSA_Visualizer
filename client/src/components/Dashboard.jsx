@@ -18,12 +18,12 @@ export default function Dashboard({ onSelectModule }) {
     {
       id: 'binary_tree',
       title: 'Binary Tree (General & Complete)',
-      category: 'Hierarchical Trees (Ch. 7)',
+      category: 'Hierarchical Trees',
       icon: GitBranch,
-      color: 'teal',
-      accentBg: 'bg-teal-50',
-      accentText: 'text-teal-600',
-      accentBorder: 'border-teal-100',
+      color: 'indigo',
+      accentBg: 'bg-indigo-50',
+      accentText: 'text-indigo-600',
+      accentBorder: 'border-indigo-100',
       description:
         'Fundamental non-linear hierarchical data structure where each node has at most two children (Lchild, Rchild). Supports level-order insertion, recursive traversals, BFS queue traversal, counting nodes/leaves, tree height, and mirroring.',
       timeComplexity: 'O(N) traversal',
