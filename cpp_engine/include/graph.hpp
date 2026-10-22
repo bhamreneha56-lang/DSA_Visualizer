@@ -331,7 +331,7 @@ public:
                        getLabel(startNode) + ".",
                        {startNode}, {}, getState({}, mstEdges));
 
-        for (int count = 0; count < numVertices - 1; ++count) {
+        for (int count = 0; count < numVertices; ++count) {
             int u = -1;
             int minKey = 999999;
             for (int v = 0; v < numVertices; ++v) {
