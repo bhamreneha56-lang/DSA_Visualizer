@@ -9,6 +9,429 @@
  */
 
 export const algorithmKnowledge = {
+  // ==================== BINARY TREE (TEXTBOOK CHAPTER 7) ====================
+  binary_tree: {
+    insert: {
+      title: "Binary Tree - Level-Order Node Insertion",
+      subtitle: "Inserts a new node at the first vacant child position (Lchild or Rchild) using Level-Order (FIFO Queue)",
+      complexities: {
+        timeBest: "O(1)",
+        timeAvg: "O(N)",
+        timeWorst: "O(N)",
+        space: "O(W) Queue width"
+      },
+      invariant: "Every node has at most two children: Left Child (Lchild) and Right Child (Rchild). Filled level by level.",
+      figurineType: "bst-insert",
+      figurineDesc: "Figurine: Level-order search scans nodes in breadth-first fashion using a FIFO Queue to link a new TreeNode at the first empty left or right link.",
+      pseudocode: `Algorithm BinaryTree_Insert(root, val):
+Input: Root node of Binary Tree, integer val
+Output: Root with new node linked
+
+1. if root == NULL then:
+2.     root = new TreeNode(val)
+3.     return root
+4. Q = Empty_Queue()
+5. Enqueue(Q, root)
+6. while not IsEmpty(Q) do:
+7.     curr = Dequeue(Q)
+8.     if curr.left == NULL then:
+9.         curr.left = new TreeNode(val)
+10.        return root
+11.    else:
+12.        Enqueue(Q, curr.left)
+13.    if curr.right == NULL then:
+14.        curr.right = new TreeNode(val)
+15.        return root
+16.    else:
+17.        Enqueue(Q, curr.right)`,
+      cleanCode: `// Data Structures using C++ - Varsha Patil Chapter 7.6
+// Insertion of a Node in Binary Tree (Level Order Insertion)
+struct TreeNode {
+    int data;
+    TreeNode* left;
+    TreeNode* right;
+    TreeNode(int val) : data(val), left(nullptr), right(nullptr) {}
+};
+
+TreeNode* insertLevelOrder(TreeNode* root, int val) {
+    if (root == nullptr) {
+        return new TreeNode(val);
+    }
+    std::queue<TreeNode*> q;
+    q.push(root);
+
+    while (!q.empty()) {
+        TreeNode* curr = q.front();
+        q.pop();
+
+        if (curr->left == nullptr) {
+            curr->left = new TreeNode(val);
+            break;
+        } else {
+            q.push(curr->left);
+        }
+
+        if (curr->right == nullptr) {
+            curr->right = new TreeNode(val);
+            break;
+        } else {
+            q.push(curr->right);
+        }
+    }
+    return root;
+}`,
+      flowchart: [
+        { id: 'start', type: 'terminal', text: 'Start Insert(root, val)' },
+        { id: 'c1', type: 'decision', text: 'Is root == NULL?' },
+        { id: 'p1', type: 'process', text: 'root = new TreeNode(val) & return' },
+        { id: 'p2', type: 'process', text: 'Initialize FIFO Queue & push root' },
+        { id: 'l1', type: 'process', text: 'curr = q.front(); q.pop()' },
+        { id: 'c2', type: 'decision', text: 'Is curr->left == NULL?' },
+        { id: 'p3', type: 'process', text: 'curr->left = new TreeNode(val) & break' },
+        { id: 'p4', type: 'process', text: 'q.push(curr->left)' },
+        { id: 'c3', type: 'decision', text: 'Is curr->right == NULL?' },
+        { id: 'p5', type: 'process', text: 'curr->right = new TreeNode(val) & break' },
+        { id: 'p6', type: 'process', text: 'q.push(curr->right)' },
+        { id: 'end', type: 'terminal', text: 'Return root' }
+      ]
+    },
+
+    inorder: {
+      title: "Binary Tree - Inorder Traversal (L-D-R)",
+      subtitle: "Left subtree traversed -> Current node data visited -> Right subtree traversed",
+      complexities: {
+        timeBest: "O(N)",
+        timeAvg: "O(N)",
+        timeWorst: "O(N)",
+        space: "O(H) recursion stack"
+      },
+      invariant: "Visits nodes in L-D-R order. For an arithmetic expression tree, yields the standard infix notation.",
+      figurineType: "traversal-ldr",
+      figurineDesc: "Figurine: Recursively exhaust Left Child (L), process Data (D), then recursively exhaust Right Child (R).",
+      pseudocode: `Algorithm Inorder(root):
+Input: Root node of Binary Tree
+Output: Visited node sequence
+
+1. if root != NULL then:
+2.     Inorder(root.left)       // L
+3.     Visit(root.data)         // D
+4.     Inorder(root.right)      // R`,
+      cleanCode: `// Data Structures using C++ - Varsha Patil Section 7.7.2
+// Inorder (LDR) Recursive Traversal
+void inorder(TreeNode* root) {
+    if (root != nullptr) {
+        inorder(root->left);          // L: Left subtree
+        std::cout << root->data << " "; // D: Data
+        inorder(root->right);         // R: Right subtree
+    }
+}`,
+      flowchart: [
+        { id: 'start', type: 'terminal', text: 'Start Inorder(root)' },
+        { id: 'c1', type: 'decision', text: 'Is root != NULL?' },
+        { id: 'p1', type: 'process', text: 'Inorder(root->left) [L]' },
+        { id: 'p2', type: 'process', text: 'Visit(root->data) [D]' },
+        { id: 'p3', type: 'process', text: 'Inorder(root->right) [R]' },
+        { id: 'end', type: 'terminal', text: 'Return' }
+      ]
+    },
+
+    preorder: {
+      title: "Binary Tree - Preorder Traversal (D-L-R)",
+      subtitle: "Current node data visited -> Left subtree traversed -> Right subtree traversed",
+      complexities: {
+        timeBest: "O(N)",
+        timeAvg: "O(N)",
+        timeWorst: "O(N)",
+        space: "O(H) recursion stack"
+      },
+      invariant: "Visits nodes in D-L-R order. For an expression tree, yields the prefix (Polish) notation.",
+      figurineType: "traversal-dlr",
+      figurineDesc: "Figurine: Process current node Data (D) immediately, then traverse left subtree (L), and finally right subtree (R).",
+      pseudocode: `Algorithm Preorder(root):
+Input: Root node of Binary Tree
+Output: Visited node sequence
+
+1. if root != NULL then:
+2.     Visit(root.data)         // D
+3.     Preorder(root.left)      // L
+4.     Preorder(root.right)     // R`,
+      cleanCode: `// Data Structures using C++ - Varsha Patil Section 7.7.1
+// Preorder (DLR) Recursive Traversal
+void preorder(TreeNode* root) {
+    if (root != nullptr) {
+        std::cout << root->data << " "; // D: Data
+        preorder(root->left);         // L: Left subtree
+        preorder(root->right);        // R: Right subtree
+    }
+}`,
+      flowchart: [
+        { id: 'start', type: 'terminal', text: 'Start Preorder(root)' },
+        { id: 'c1', type: 'decision', text: 'Is root != NULL?' },
+        { id: 'p1', type: 'process', text: 'Visit(root->data) [D]' },
+        { id: 'p2', type: 'process', text: 'Preorder(root->left) [L]' },
+        { id: 'p3', type: 'process', text: 'Preorder(root->right) [R]' },
+        { id: 'end', type: 'terminal', text: 'Return' }
+      ]
+    },
+
+    postorder: {
+      title: "Binary Tree - Postorder Traversal (L-R-D)",
+      subtitle: "Left subtree traversed -> Right subtree traversed -> Current node data visited",
+      complexities: {
+        timeBest: "O(N)",
+        timeAvg: "O(N)",
+        timeWorst: "O(N)",
+        space: "O(H) recursion stack"
+      },
+      invariant: "Visits nodes in L-R-D order. For an expression tree, yields the postfix (Reverse Polish) notation.",
+      figurineType: "traversal-lrd",
+      figurineDesc: "Figurine: Left Subtree (L) then Right Subtree (R) must both be completely visited before evaluating root Data (D).",
+      pseudocode: `Algorithm Postorder(root):
+Input: Root node of Binary Tree
+Output: Visited node sequence
+
+1. if root != NULL then:
+2.     Postorder(root.left)     // L
+3.     Postorder(root.right)    // R
+4.     Visit(root.data)         // D`,
+      cleanCode: `// Data Structures using C++ - Varsha Patil Section 7.7.3
+// Postorder (LRD) Recursive Traversal
+void postorder(TreeNode* root) {
+    if (root != nullptr) {
+        postorder(root->left);        // L: Left subtree
+        postorder(root->right);       // R: Right subtree
+        std::cout << root->data << " "; // D: Data
+    }
+}`,
+      flowchart: [
+        { id: 'start', type: 'terminal', text: 'Start Postorder(root)' },
+        { id: 'c1', type: 'decision', text: 'Is root != NULL?' },
+        { id: 'p1', type: 'process', text: 'Postorder(root->left) [L]' },
+        { id: 'p2', type: 'process', text: 'Postorder(root->right) [R]' },
+        { id: 'p3', type: 'process', text: 'Visit(root->data) [D]' },
+        { id: 'end', type: 'terminal', text: 'Return' }
+      ]
+    },
+
+    bfs: {
+      title: "Binary Tree - Breadth-First / Level Order (BFS)",
+      subtitle: "Non-recursive level-by-level traversal using FIFO Queue (Program Code 7.9)",
+      complexities: {
+        timeBest: "O(N)",
+        timeAvg: "O(N)",
+        timeWorst: "O(N)",
+        space: "O(W) Max tree width in queue"
+      },
+      invariant: "Nodes are visited level by level from root (level 0) downward, from left to right.",
+      figurineType: "bst-insert",
+      figurineDesc: "Figurine: A FIFO Queue stores discovered nodes. Each popped node is visited, and its non-null left and right child pointers are enqueued.",
+      pseudocode: `Algorithm BFS_Tree(root):
+Input: Root node of Binary Tree
+Output: Level order sequence
+
+1. if root == NULL then return
+2. Q = Empty_Queue()
+3. Enqueue(Q, root)
+4. while not IsEmpty(Q) do:
+5.     curr = Dequeue(Q)
+6.     Visit(curr.data)
+7.     if curr.left != NULL then Enqueue(Q, curr.left)
+8.     if curr.right != NULL then Enqueue(Q, curr.right)`,
+      cleanCode: `// Data Structures using C++ - Varsha Patil Program Code 7.9
+// Non-recursive Breadth-First Traversal using Queue
+void BinaryTree::BFS_Tree() {
+    if (root == nullptr) return;
+    std::queue<TreeNode*> Q;
+    TreeNode* tmp = root;
+    Q.push(tmp);
+
+    while (!Q.empty()) {
+        tmp = Q.front();
+        Q.pop();
+        std::cout << tmp->data << " ";
+        if (tmp->left != nullptr)
+            Q.push(tmp->left);
+        if (tmp->right != nullptr)
+            Q.push(tmp->right);
+    }
+}`,
+      flowchart: [
+        { id: 'start', type: 'terminal', text: 'Start BFS_Tree(root)' },
+        { id: 'c1', type: 'decision', text: 'Is root == NULL?' },
+        { id: 'p1', type: 'process', text: 'Queue Q; Q.push(root)' },
+        { id: 'l1', type: 'decision', text: 'Is Q empty?' },
+        { id: 'p2', type: 'process', text: 'tmp = Q.front(); Q.pop(); Visit(tmp)' },
+        { id: 'c2', type: 'decision', text: 'tmp->left != NULL?' },
+        { id: 'p3', type: 'process', text: 'Q.push(tmp->left)' },
+        { id: 'c3', type: 'decision', text: 'tmp->right != NULL?' },
+        { id: 'p4', type: 'process', text: 'Q.push(tmp->right)' },
+        { id: 'end', type: 'terminal', text: 'End Traversal' }
+      ]
+    },
+
+    count_nodes: {
+      title: "Binary Tree - Count Total Nodes",
+      subtitle: "Recursive node tallying: CountNode(Root) = 1 + CountNode(Left) + CountNode(Right)",
+      complexities: {
+        timeBest: "O(N)",
+        timeAvg: "O(N)",
+        timeWorst: "O(N)",
+        space: "O(H) recursion stack"
+      },
+      invariant: "Total nodes N in binary tree is exactly 1 (for root) plus sum of nodes in left and right subtrees.",
+      figurineType: "bst-insert",
+      figurineDesc: "Figurine: Recursively counts all nodes in the binary tree by aggregating counts from left and right subtrees.",
+      pseudocode: `Algorithm CountNode(root):
+Input: Root node of Binary Tree
+Output: Total count of nodes
+
+1. if root == NULL then:
+2.     return 0
+3. else:
+4.     return 1 + CountNode(root.left) + CountNode(root.right)`,
+      cleanCode: `// Data Structures using C++ - Varsha Patil Section 7.8.1
+// Count total nodes in a linked binary tree
+int BinaryTree::CountNode(TreeNode* root) {
+    if (root == nullptr)
+        return 0;
+    else
+        return (1 + CountNode(root->left) + CountNode(root->right));
+}`,
+      flowchart: [
+        { id: 'start', type: 'terminal', text: 'Start CountNode(root)' },
+        { id: 'c1', type: 'decision', text: 'Is root == NULL?' },
+        { id: 'p1', type: 'process', text: 'return 0' },
+        { id: 'p2', type: 'process', text: 'return 1 + CountNode(left) + CountNode(right)' },
+        { id: 'end', type: 'terminal', text: 'End' }
+      ]
+    },
+
+    count_leaves: {
+      title: "Binary Tree - Count Leaf Nodes",
+      subtitle: "Counts nodes where both Lchild == NULL and Rchild == NULL (Section 7.8.2)",
+      complexities: {
+        timeBest: "O(N)",
+        timeAvg: "O(N)",
+        timeWorst: "O(N)",
+        space: "O(H) recursion stack"
+      },
+      invariant: "A leaf node is any node with degree 0 (no left and no right child).",
+      figurineType: "bst-insert",
+      figurineDesc: "Figurine: Identifies termination leaf nodes (degree 0) and counts them towards the total leaf tally.",
+      pseudocode: `Algorithm CountLeaf(root):
+Input: Root node of Binary Tree
+Output: Total leaf nodes count
+
+1. if root == NULL then:
+2.     return 0
+3. else if root.left == NULL and root.right == NULL then:
+4.     return 1
+5. else:
+6.     return CountLeaf(root.left) + CountLeaf(root.right)`,
+      cleanCode: `// Data Structures using C++ - Varsha Patil Section 7.8.2
+// Count leaf nodes in a linked binary tree
+int BinaryTree::CountLeaf(TreeNode* root) {
+    if (root == nullptr)
+        return 0;
+    else if (root->left == nullptr && root->right == nullptr)
+        return 1;
+    else
+        return (CountLeaf(root->left) + CountLeaf(root->right));
+}`,
+      flowchart: [
+        { id: 'start', type: 'terminal', text: 'Start CountLeaf(root)' },
+        { id: 'c1', type: 'decision', text: 'Is root == NULL?' },
+        { id: 'p1', type: 'process', text: 'return 0' },
+        { id: 'c2', type: 'decision', text: 'left == NULL && right == NULL?' },
+        { id: 'p2', type: 'process', text: 'return 1 (Leaf)' },
+        { id: 'p3', type: 'process', text: 'return CountLeaf(left) + CountLeaf(right)' },
+        { id: 'end', type: 'terminal', text: 'End' }
+      ]
+    },
+
+    height: {
+      title: "Binary Tree - Compute Tree Height",
+      subtitle: "Calculates maximum path depth: Height = 1 + max(Height(Left), Height(Right))",
+      complexities: {
+        timeBest: "O(N)",
+        timeAvg: "O(N)",
+        timeWorst: "O(N)",
+        space: "O(H) recursion stack"
+      },
+      invariant: "Tree height equals longest path length from root to any leaf node.",
+      figurineType: "bst-insert",
+      figurineDesc: "Figurine: Evaluates depth of left and right subtrees and returns 1 + max of both subtree heights.",
+      pseudocode: `Algorithm TreeHeight(root):
+Input: Root node of Binary Tree
+Output: Maximum path height
+
+1. if root == NULL then return 0
+2. heightL = TreeHeight(root.left)
+3. heightR = TreeHeight(root.right)
+4. return 1 + max(heightL, heightR)`,
+      cleanCode: `// Data Structures using C++ - Varsha Patil Section 7.8.3
+// Computing height of a linked binary tree
+int BinaryTree::TreeHeight(TreeNode* root) {
+    if (root == nullptr)
+        return 0;
+    int heightL = TreeHeight(root->left);
+    int heightR = TreeHeight(root->right);
+    return 1 + std::max(heightL, heightR);
+}`,
+      flowchart: [
+        { id: 'start', type: 'terminal', text: 'Start TreeHeight(root)' },
+        { id: 'c1', type: 'decision', text: 'Is root == NULL?' },
+        { id: 'p1', type: 'process', text: 'return 0' },
+        { id: 'p2', type: 'process', text: 'hl = TreeHeight(left); hr = TreeHeight(right)' },
+        { id: 'p3', type: 'process', text: 'return 1 + max(hl, hr)' },
+        { id: 'end', type: 'terminal', text: 'End' }
+      ]
+    },
+
+    mirror: {
+      title: "Binary Tree - Mirror (Tree Interchange)",
+      subtitle: "Interchanges all left and right subtrees recursively (Varsha Patil Section 7.8.4)",
+      complexities: {
+        timeBest: "O(N)",
+        timeAvg: "O(N)",
+        timeWorst: "O(N)",
+        space: "O(H) recursion stack"
+      },
+      invariant: "After Mirror(), for every node, its original left subtree becomes the right subtree and vice-versa.",
+      figurineType: "bst-insert",
+      figurineDesc: "Figurine: Inverts the entire tree structure symmetrically by swapping Lchild and Rchild pointers at every node.",
+      pseudocode: `Algorithm Mirror(root):
+Input: Root node of Binary Tree
+Output: Inverted mirror binary tree
+
+1. if root != NULL then:
+2.     tmp = root.left
+3.     root.left = root.right
+4.     root.right = tmp
+5.     Mirror(root.left)
+6.     Mirror(root.right)`,
+      cleanCode: `// Data Structures using C++ - Varsha Patil Section 7.8.4
+// Getting Mirror, Replica, or Tree Interchange of Binary Tree
+void BinaryTree::Mirror(TreeNode* root) {
+    if (root != nullptr) {
+        TreeNode* tmp = root->left;
+        root->left = root->right;
+        root->right = tmp;
+        Mirror(root->left);
+        Mirror(root->right);
+    }
+}`,
+      flowchart: [
+        { id: 'start', type: 'terminal', text: 'Start Mirror(root)' },
+        { id: 'c1', type: 'decision', text: 'Is root != NULL?' },
+        { id: 'p1', type: 'process', text: 'Swap root->left and root->right' },
+        { id: 'p2', type: 'process', text: 'Mirror(root->left)' },
+        { id: 'p3', type: 'process', text: 'Mirror(root->right)' },
+        { id: 'end', type: 'terminal', text: 'End Mirror' }
+      ]
+    }
+  },
+
   // ==================== BINARY SEARCH TREE (BST) ====================
   bst: {
     insert: {

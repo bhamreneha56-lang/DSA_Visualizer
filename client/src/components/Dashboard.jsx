@@ -16,6 +16,32 @@ import {
 export default function Dashboard({ onSelectModule }) {
   const modules = [
     {
+      id: 'binary_tree',
+      title: 'Binary Tree (General & Complete)',
+      category: 'Hierarchical Trees (Ch. 7)',
+      icon: GitBranch,
+      color: 'teal',
+      accentBg: 'bg-teal-50',
+      accentText: 'text-teal-600',
+      accentBorder: 'border-teal-100',
+      description:
+        'Fundamental non-linear hierarchical data structure where each node has at most two children (Lchild, Rchild). Supports level-order insertion, recursive traversals, BFS queue traversal, counting nodes/leaves, tree height, and mirroring.',
+      timeComplexity: 'O(N) traversal',
+      spaceComplexity: 'O(H) / O(W)',
+      operations: [
+        { id: 'insert', label: 'Level-Order Build' },
+        { id: 'inorder', label: 'Inorder (LDR)' },
+        { id: 'preorder', label: 'Preorder (DLR)' },
+        { id: 'postorder', label: 'Postorder (LRD)' },
+        { id: 'bfs', label: 'BFS (Level Order)' },
+        { id: 'count_nodes', label: 'Count Nodes' },
+        { id: 'count_leaves', label: 'Count Leaf Nodes' },
+        { id: 'height', label: 'Tree Height' },
+        { id: 'mirror', label: 'Mirror Tree' }
+      ],
+      defaultOp: 'insert'
+    },
+    {
       id: 'bst',
       title: 'Binary Search Tree (BST)',
       category: 'Hierarchical Trees',
@@ -190,7 +216,7 @@ export default function Dashboard({ onSelectModule }) {
             <p className="text-xs text-slate-500">Choose a data structure or specific operation to launch</p>
           </div>
           <span className="text-xs font-mono font-semibold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2.5 py-1 rounded-md">
-            5 Modules Ready
+            6 Modules Ready
           </span>
         </div>
 

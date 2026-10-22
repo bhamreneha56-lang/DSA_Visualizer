@@ -83,6 +83,9 @@ app.post('/api/run', (req, res) => {
 app.get('/api/code/:ds', (req, res) => {
   const ds = req.params.ds.toLowerCase();
   const fileMap = {
+    binary_tree: 'binary_tree.hpp',
+    binarytree: 'binary_tree.hpp',
+    bt: 'binary_tree.hpp',
     bst: 'bst.hpp',
     avl: 'avl.hpp',
     heap: 'heap.hpp',

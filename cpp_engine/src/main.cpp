@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <tuple>
 #include "../include/tracer.hpp"
+#include "../include/binary_tree.hpp"
 #include "../include/bst.hpp"
 #include "../include/avl.hpp"
 #include "../include/heap.hpp"
@@ -124,7 +125,42 @@ int main(int argc, char* argv[]) {
 
     Tracer tracer;
 
-    if (ds == "bst") {
+    if (ds == "binary_tree" || ds == "binarytree" || ds == "bt") {
+        BinaryTree bt(tracer);
+        std::vector<int> vals = parseNumbers(data);
+        if (vals.empty()) {
+            vals = {1, 2, 3, 4, 5, 6, 7};
+        }
+        if (op == "insert") {
+            for (int v : vals) {
+                bt.insertLevelOrder(v);
+            }
+        } else if (op == "inorder") {
+            for (int v : vals) bt.insertSilent(v);
+            bt.traverseInorder();
+        } else if (op == "preorder") {
+            for (int v : vals) bt.insertSilent(v);
+            bt.traversePreorder();
+        } else if (op == "postorder") {
+            for (int v : vals) bt.insertSilent(v);
+            bt.traversePostorder();
+        } else if (op == "bfs" || op == "levelorder") {
+            for (int v : vals) bt.insertSilent(v);
+            bt.traverseBFS();
+        } else if (op == "count_nodes") {
+            for (int v : vals) bt.insertSilent(v);
+            bt.countNodes();
+        } else if (op == "count_leaves") {
+            for (int v : vals) bt.insertSilent(v);
+            bt.countLeaves();
+        } else if (op == "height") {
+            for (int v : vals) bt.insertSilent(v);
+            bt.treeHeight();
+        } else if (op == "mirror") {
+            for (int v : vals) bt.insertSilent(v);
+            bt.mirrorTree();
+        }
+    } else if (ds == "bst") {
         BST bst(tracer);
         std::vector<int> vals = parseNumbers(data);
         if (op == "insert") {

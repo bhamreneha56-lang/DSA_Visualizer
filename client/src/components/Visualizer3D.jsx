@@ -300,47 +300,102 @@ export default function Visualizer3D({ currentTrace, nodeShape = 'circle', dataS
       />
 
       {/* Traversal Sequence Bar for 3D View */}
-      {dataStructure === 'bst' &&
-        (operation === 'inorder' || operation === 'preorder' || operation === 'postorder' || action.startsWith('VISIT_')) &&
-        traces.length > 0 && (
-          <div className="bg-white border-t border-border px-4 py-2 flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <span className="text-xs font-semibold uppercase text-slate-500 tracking-wider">
-                {operation === 'inorder' || action === 'VISIT_INORDER'
-                  ? 'Inorder Sequence (L-D-R):'
-                  : operation === 'preorder' || action === 'VISIT_PREORDER'
-                  ? 'Preorder Sequence (D-L-R):'
-                  : 'Postorder Sequence (L-R-D):'}
-              </span>
-              <div className="flex items-center space-x-1.5 overflow-x-auto py-1">
-                {traces.map((t, idx) => {
-                  const val = t.activeNodes?.[0];
-                  const isCurrentActive = idx === currentStepIndex;
-                  const isVisited = idx <= currentStepIndex;
+      {(dataStructure === 'bst' || dataStructure === 'binary_tree') &&
+        (operation === 'inorder' || operation === 'preorder' || operation === 'postorder' || operation === 'bfs' || operation === 'levelorder' || action.startsWith('VISIT_') || action === 'BFS_VISIT') &&
+        traces.length > 0 && (() => {
+          const traversalSteps = traces.filter(
+            (t) => t.action?.startsWith('VISIT_') || t.action === 'BFS_VISIT'
+          );
+          const fullSequence = traversalSteps.map((t) => t.activeNodes?.[0]).filter((v) => v !== undefined);
+          const currentVisitIndex = traces
+            .slice(0, currentStepIndex + 1)
+            .filter((t) => t.action?.startsWith('VISIT_') || t.action === 'BFS_VISIT').length - 1;
 
-                  return (
-                    <div
-                      key={idx}
-                      className={`flex flex-col items-center justify-center w-9 h-10 border rounded-md transition-all ${
-                        isCurrentActive
-                          ? 'bg-amber-100 border-amber-500 font-bold scale-105 shadow-sm text-amber-900 ring-2 ring-amber-300'
-                          : isVisited
-                          ? 'bg-emerald-50 border-emerald-400 text-emerald-800 font-semibold'
-                          : 'bg-slate-50 border-dashed border-slate-300 text-slate-400 opacity-60'
-                      }`}
-                    >
-                      <span className="text-xs">{isVisited ? val : '?'}</span>
-                      <span className="text-[8px] text-slate-400">[{idx}]</span>
-                    </div>
-                  );
-                })}
+          if (fullSequence.length === 0) return null;
+
+          return (
+            <div className="bg-white border-t border-border px-4 py-2 flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <span className="text-xs font-semibold uppercase text-slate-500 tracking-wider">
+                  {operation === 'inorder' || action === 'VISIT_INORDER'
+                    ? 'Inorder Sequence (L-D-R):'
+                    : operation === 'preorder' || action === 'VISIT_PREORDER'
+                    ? 'Preorder Sequence (D-L-R):'
+                    : operation === 'postorder' || action === 'VISIT_POSTORDER'
+                    ? 'Postorder Sequence (L-R-D):'
+                    : 'BFS / Level Order Sequence:'}
+                </span>
+                <div className="flex items-center space-x-1.5 overflow-x-auto py-1">
+                  {fullSequence.map((val, idx) => {
+                    const isCurrentActive = idx === currentVisitIndex;
+                    const isVisited = idx <= currentVisitIndex;
+
+                    return (
+                      <div
+                        key={idx}
+                        className={`flex flex-col items-center justify-center w-9 h-10 border rounded-md transition-all ${
+                          isCurrentActive
+                            ? 'bg-amber-100 border-amber-500 font-bold scale-105 shadow-sm text-amber-900 ring-2 ring-amber-300'
+                            : isVisited
+                            ? 'bg-emerald-50 border-emerald-400 text-emerald-800 font-semibold'
+                            : 'bg-slate-50 border-dashed border-slate-300 text-slate-400 opacity-60'
+                        }`}
+                      >
+                        <span className="text-xs">{isVisited ? val : '?'}</span>
+                        <span className="text-[8px] text-slate-400">[{idx}]</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="text-xs text-slate-500 font-mono">
+                Visited:{' '}
+                <strong className="text-indigo-600">
+                  {Math.max(0, Math.min(currentVisitIndex + 1, fullSequence.length))}
+                </strong>{' '}
+                / {fullSequence.length}
               </div>
             </div>
-            <div className="text-xs text-slate-500 font-mono">
-              Visited: <strong className="text-indigo-600">{Math.min(currentStepIndex + 1, traces.length)}</strong> / {traces.length}
+          );
+        })()}
+
+      {/* Tree Metrics Bar for 3D View */}
+      {dataStructure === 'binary_tree' &&
+        (operation === 'count_nodes' || operation === 'count_leaves' || operation === 'height') && (() => {
+          const latestTally = currentTrace?.comparedKeys?.[0];
+          const finalResult = traces[traces.length - 1]?.comparedKeys?.[0];
+          return (
+            <div className="bg-white border-t border-border px-4 py-2 flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <span className="text-xs font-semibold uppercase text-slate-500 tracking-wider">
+                  {operation === 'count_nodes'
+                    ? 'Node Counting Metric:'
+                    : operation === 'count_leaves'
+                    ? 'Leaf Node Metric:'
+                    : 'Tree Height Metric:'}
+                </span>
+                <span className="px-2 py-0.5 rounded bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-mono font-bold">
+                  {operation === 'count_nodes'
+                    ? '1 + Count(L) + Count(R)'
+                    : operation === 'count_leaves'
+                    ? 'Leaf = (L==NULL && R==NULL) ? 1 : (Leaf(L) + Leaf(R))'
+                    : '1 + max(Height(L), Height(R))'}
+                </span>
+                {latestTally !== undefined && (
+                  <span className="px-2 py-0.5 rounded bg-amber-50 border border-amber-200 text-amber-800 text-xs font-mono font-bold">
+                    Step Value: {latestTally}
+                  </span>
+                )}
+              </div>
+              <div className="text-xs text-slate-600 font-mono">
+                Final Result:{' '}
+                <strong className="text-emerald-600 text-sm font-bold">
+                  {finalResult !== undefined ? finalResult : 'Computing...'}
+                </strong>
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
     </div>
   );
 }

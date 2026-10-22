@@ -44,6 +44,7 @@ export default function Header({
   onChangeBtreeOrder
 }) {
   const dsOptions = [
+    { id: 'binary_tree', label: 'Binary Tree (General)', icon: GitBranch },
     { id: 'bst', label: 'Binary Search Tree (BST)', icon: GitBranch },
     { id: 'avl', label: 'AVL Tree (Height-Balanced)', icon: Sparkles },
     { id: 'heapsort', label: 'Heap & Heap Sort', icon: Layers },
@@ -53,6 +54,18 @@ export default function Header({
 
   const getOperationsForDS = () => {
     switch (dataStructure) {
+      case 'binary_tree':
+        return [
+          { id: 'insert', label: 'Level-Order Build / Insert' },
+          { id: 'inorder', label: 'Inorder (LDR)' },
+          { id: 'preorder', label: 'Preorder (DLR)' },
+          { id: 'postorder', label: 'Postorder (LRD)' },
+          { id: 'bfs', label: 'BFS (Level Order)' },
+          { id: 'count_nodes', label: 'Count Total Nodes' },
+          { id: 'count_leaves', label: 'Count Leaf Nodes' },
+          { id: 'height', label: 'Compute Tree Height' },
+          { id: 'mirror', label: 'Mirror Tree (Swap L/R)' },
+        ];
       case 'bst':
         return [
           { id: 'insert', label: 'Build / Insert' },
@@ -416,6 +429,28 @@ export default function Header({
             {/* Quick Presets */}
             <div className="flex items-center space-x-1.5 text-xs">
               <span className="text-[11px] font-medium text-slate-400">Presets:</span>
+              {dataStructure === 'binary_tree' && (
+                <>
+                  <button
+                    onClick={() => onApplyPreset('1,2,3,4,5,6,7')}
+                    className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[11px] font-mono"
+                  >
+                    Complete 7-Node
+                  </button>
+                  <button
+                    onClick={() => onApplyPreset('10,20,30,40,50')}
+                    className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[11px] font-mono"
+                  >
+                    5-Node Tree
+                  </button>
+                  <button
+                    onClick={() => onApplyPreset('1,2,3,4,5,6,7,8,9,10')}
+                    className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[11px] font-mono"
+                  >
+                    10-Node Tree
+                  </button>
+                </>
+              )}
               {dataStructure === 'avl' && (
                 <>
                   <button

@@ -30,32 +30,39 @@ export default function Visualizer2D({ currentTrace, nodeShape = 'circle', dataS
   }
 
   const isTraversal =
-    dataStructure === 'bst' &&
-    (operation === 'inorder' || operation === 'preorder' || operation === 'postorder' || action.startsWith('VISIT_'));
+    (dataStructure === 'bst' || dataStructure === 'binary_tree') &&
+    (operation === 'inorder' || operation === 'preorder' || operation === 'postorder' || operation === 'bfs' || operation === 'levelorder' || action.startsWith('VISIT_') || action === 'BFS_VISIT');
 
-  // Collect traversal sequence visited up to currentStepIndex and total traversal sequence
-  const traversalHistory = [];
-  const fullTraversalSequence = [];
-  if (isTraversal && traces.length > 0) {
-    traces.forEach((t, idx) => {
-      const activeVal = t.activeNodes?.[0];
-      if (activeVal !== undefined) {
-        fullTraversalSequence.push(activeVal);
-        if (idx <= currentStepIndex) {
-          traversalHistory.push(activeVal);
-        }
-      }
-    });
-  }
+  // Traversal sequence: only steps that visit a node
+  const traversalSteps = traces.filter(
+    (t) => t.action?.startsWith('VISIT_') || t.action === 'BFS_VISIT'
+  );
+  const fullTraversalSequence = traversalSteps.map((t) => t.activeNodes?.[0]).filter((v) => v !== undefined);
+
+  // Current visited index within traversal sequence
+  const currentTraversalVisitIndex = traces
+    .slice(0, currentStepIndex + 1)
+    .filter((t) => t.action?.startsWith('VISIT_') || t.action === 'BFS_VISIT').length - 1;
 
   const traversalTitle =
     operation === 'inorder' || action === 'VISIT_INORDER'
-      ? 'Inorder Sequence (L-D-R):'
+      ? 'Inorder Traversal Sequence (L-D-R):'
       : operation === 'preorder' || action === 'VISIT_PREORDER'
-      ? 'Preorder Sequence (D-L-R):'
+      ? 'Preorder Traversal Sequence (D-L-R):'
       : operation === 'postorder' || action === 'VISIT_POSTORDER'
-      ? 'Postorder Sequence (L-R-D):'
+      ? 'Postorder Traversal Sequence (L-R-D):'
+      : operation === 'bfs' || operation === 'levelorder' || action === 'BFS_VISIT'
+      ? 'Breadth-First (BFS) / Level-Order Sequence:'
       : 'Traversal Sequence:';
+
+  // Tree Metrics & Count Operations
+  const isMetricsOp =
+    dataStructure === 'binary_tree' &&
+    (operation === 'count_nodes' || operation === 'count_leaves' || operation === 'height');
+
+  const latestTally = currentTrace?.comparedKeys?.[0];
+  const finalMetricStep = traces[traces.length - 1];
+  const finalResult = finalMetricStep?.comparedKeys?.[0];
   const handleMouseDown = (e) => {
     setIsDragging(true);
     setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
@@ -508,7 +515,7 @@ export default function Visualizer2D({ currentTrace, nodeShape = 'circle', dataS
         </g>
       </svg>
 
-      {/* Traversal Sequence Array Synchronization Bar (Preorder, Inorder, Postorder) */}
+      {/* Traversal Sequence Array Synchronization Bar (Preorder, Inorder, Postorder, BFS) */}
       {isTraversal && fullTraversalSequence.length > 0 && (
         <div className="bg-white border-t border-border px-4 py-2.5 flex items-center justify-between">
           <div className="flex items-center space-x-2">
@@ -517,8 +524,8 @@ export default function Visualizer2D({ currentTrace, nodeShape = 'circle', dataS
             </span>
             <div className="flex items-center space-x-1.5 overflow-x-auto py-1">
               {fullTraversalSequence.map((val, idx) => {
-                const isCurrentActive = idx === currentStepIndex;
-                const isVisited = idx <= currentStepIndex;
+                const isCurrentActive = idx === currentTraversalVisitIndex;
+                const isVisited = idx <= currentTraversalVisitIndex;
 
                 return (
                   <div
@@ -539,7 +546,47 @@ export default function Visualizer2D({ currentTrace, nodeShape = 'circle', dataS
             </div>
           </div>
           <div className="text-xs text-slate-500 font-mono">
-            Visited: <strong className="text-indigo-600">{Math.min(currentStepIndex + 1, fullTraversalSequence.length)}</strong> / {fullTraversalSequence.length}
+            Visited:{' '}
+            <strong className="text-indigo-600">
+              {Math.max(0, Math.min(currentTraversalVisitIndex + 1, fullTraversalSequence.length))}
+            </strong>{' '}
+            / {fullTraversalSequence.length}
+          </div>
+        </div>
+      )}
+
+      {/* Tree Metrics Bar (Count Nodes, Count Leaves, Tree Height) */}
+      {isMetricsOp && (
+        <div className="bg-white border-t border-border px-4 py-2.5 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <span className="text-xs font-semibold uppercase text-slate-500 tracking-wider">
+              {operation === 'count_nodes'
+                ? 'Node Counting Metric:'
+                : operation === 'count_leaves'
+                ? 'Leaf Node Metric:'
+                : 'Tree Height Metric:'}
+            </span>
+            <div className="flex items-center space-x-2">
+              <span className="px-2.5 py-1 rounded bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-mono font-bold">
+                Formula:{' '}
+                {operation === 'count_nodes'
+                  ? '1 + Count(L) + Count(R)'
+                  : operation === 'count_leaves'
+                  ? 'Leaf = (L==NULL && R==NULL) ? 1 : (Leaf(L) + Leaf(R))'
+                  : '1 + max(Height(L), Height(R))'}
+              </span>
+              {latestTally !== undefined && (
+                <span className="px-2.5 py-1 rounded bg-amber-50 border border-amber-200 text-amber-800 text-xs font-mono font-bold">
+                  Current Step Value: {latestTally}
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="text-xs text-slate-600 font-mono">
+            Final Computed Result:{' '}
+            <strong className="text-emerald-600 text-sm font-bold">
+              {finalResult !== undefined ? finalResult : 'Computing...'}
+            </strong>
           </div>
         </div>
       )}

@@ -111,7 +111,10 @@ export default function App() {
     let defaultOp = targetOp || 'insert';
     let defaultData = '25,20,30,10,22,5';
 
-    if (newDS === 'heapsort') {
+    if (newDS === 'binary_tree') {
+      defaultOp = targetOp || 'insert';
+      defaultData = '1,2,3,4,5,6,7';
+    } else if (newDS === 'heapsort') {
       defaultOp = targetOp || 'max';
       defaultData = '12,11,13,5,6,7';
     } else if (newDS === 'graph') {
