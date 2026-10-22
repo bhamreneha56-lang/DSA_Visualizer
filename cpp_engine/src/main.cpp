@@ -262,8 +262,22 @@ int main(int argc, char* argv[]) {
             g.primMST(startIdx);
         }
     } else if (ds == "btree") {
-        BTree btree(2, tracer); // Minimum degree 2 (Order 4 B-Tree)
-        std::vector<int> vals = parseNumbers(data);
+        int degree = 2; // default minimum degree t = 2 (Order 2*t = 4)
+        std::string numbersData = data;
+
+        // Check if degree is passed as degree|numbers or t=...
+        size_t pipePos = data.find('|');
+        if (pipePos != std::string::npos) {
+            std::string degStr = data.substr(0, pipePos);
+            numbersData = data.substr(pipePos + 1);
+            try {
+                int d = std::stoi(degStr);
+                if (d >= 2) degree = d;
+            } catch (...) {}
+        }
+
+        BTree btree(degree, tracer);
+        std::vector<int> vals = parseNumbers(numbersData);
         for (int v : vals) {
             btree.insert(v);
         }

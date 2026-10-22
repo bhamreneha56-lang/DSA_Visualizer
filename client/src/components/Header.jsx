@@ -38,7 +38,10 @@ export default function Header({
   onChangeGraphStartNode,
   // BST Delete control
   deleteTarget,
-  onChangeDeleteTarget
+  onChangeDeleteTarget,
+  // B-Tree Order control
+  btreeOrder,
+  onChangeBtreeOrder
 }) {
   const dsOptions = [
     { id: 'bst', label: 'Binary Search Tree (BST)', icon: GitBranch },
@@ -360,6 +363,26 @@ export default function Header({
                 placeholder="Comma-separated values e.g. 25, 20, 30, 10, 22, 5"
                 className="flex-1 text-xs font-mono bg-slate-50 border border-border rounded-lg px-3 py-1.5 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
+
+              {/* If B-Tree: User Configurable Order / Minimum Degree */}
+              {dataStructure === 'btree' && (
+                <div className="flex items-center space-x-1.5 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1 text-xs">
+                  <span className="font-semibold text-amber-900">Order (m):</span>
+                  <select
+                    value={btreeOrder}
+                    onChange={(e) => onChangeBtreeOrder(e.target.value)}
+                    className="font-mono font-bold bg-white border border-amber-300 rounded px-1.5 py-0.5 text-amber-900 focus:outline-none focus:ring-1 focus:ring-amber-500 text-xs cursor-pointer"
+                  >
+                    <option value="3">Order 3 (t=2, max 3 keys)</option>
+                    <option value="4">Order 4 (t=2, max 3 keys)</option>
+                    <option value="5">Order 5 (t=3, max 5 keys)</option>
+                    <option value="6">Order 6 (t=3, max 5 keys)</option>
+                  </select>
+                  <span className="text-[10px] text-amber-700 font-mono hidden sm:inline">
+                    (t = {Math.max(2, Math.floor((parseInt(btreeOrder, 10) || 4) / 2))})
+                  </span>
+                </div>
+              )}
 
               {/* If BST Delete: dedicated Delete Target Field */}
               {dataStructure === 'bst' && operation === 'delete' && (

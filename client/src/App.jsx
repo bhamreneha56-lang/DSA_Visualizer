@@ -31,6 +31,9 @@ export default function App() {
   // BST Delete Target state
   const [deleteTarget, setDeleteTarget] = useState('20');
 
+  // B-Tree Order / Minimum Degree (t) state
+  const [btreeOrder, setBtreeOrder] = useState('4'); // Order m (minimum degree t = ceil(m/2))
+
   const [traces, setTraces] = useState([]);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -76,6 +79,10 @@ export default function App() {
         payload = buildGraphPayload();
       } else if (ds === 'bst' && op === 'delete') {
         payload = `${inputData};${deleteTarget}`;
+      } else if (ds === 'btree') {
+        const orderNum = parseInt(btreeOrder, 10) || 4;
+        const degree = Math.max(2, Math.floor(orderNum / 2));
+        payload = `${degree}|${inputData}`;
       } else {
         payload = inputData;
       }
@@ -255,6 +262,14 @@ export default function App() {
         // BST Delete target prop
         deleteTarget={deleteTarget}
         onChangeDeleteTarget={setDeleteTarget}
+        // B-Tree Order prop
+        btreeOrder={btreeOrder}
+        onChangeBtreeOrder={(order) => {
+          setBtreeOrder(order);
+          const orderNum = parseInt(order, 10) || 4;
+          const degree = Math.max(2, Math.floor(orderNum / 2));
+          runEngine('btree', operation, `${degree}|${inputData}`);
+        }}
       />
 
       {/* Main Workspace Body */}
