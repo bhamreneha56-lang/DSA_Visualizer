@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { RotateCw, Compass, Eye } from 'lucide-react';
 import { calculateTreeLayout, calculateHeapLayout, calculateGraphLayout, calculateBTreeLayout } from '../utils/treeLayout';
 
-export default function Visualizer3D({ currentTrace, nodeShape = 'circle' }) {
+export default function Visualizer3D({ currentTrace, nodeShape = 'circle', dataStructure, operation, traces = [], currentStepIndex = 0 }) {
   const canvasRef = useRef(null);
   const [rotationAngle, setRotationAngle] = useState(35); // Degrees around Y-axis
   const [tiltAngle, setTiltAngle] = useState(30); // Elevation tilt in degrees
@@ -298,6 +298,49 @@ export default function Visualizer3D({ currentTrace, nodeShape = 'circle' }) {
         height={520}
         className="w-full h-full block cursor-grab active:cursor-grabbing"
       />
+
+      {/* Traversal Sequence Bar for 3D View */}
+      {dataStructure === 'bst' &&
+        (operation === 'inorder' || operation === 'preorder' || operation === 'postorder' || action.startsWith('VISIT_')) &&
+        traces.length > 0 && (
+          <div className="bg-white border-t border-border px-4 py-2 flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <span className="text-xs font-semibold uppercase text-slate-500 tracking-wider">
+                {operation === 'inorder' || action === 'VISIT_INORDER'
+                  ? 'Inorder Sequence (L-D-R):'
+                  : operation === 'preorder' || action === 'VISIT_PREORDER'
+                  ? 'Preorder Sequence (D-L-R):'
+                  : 'Postorder Sequence (L-R-D):'}
+              </span>
+              <div className="flex items-center space-x-1.5 overflow-x-auto py-1">
+                {traces.map((t, idx) => {
+                  const val = t.activeNodes?.[0];
+                  const isCurrentActive = idx === currentStepIndex;
+                  const isVisited = idx <= currentStepIndex;
+
+                  return (
+                    <div
+                      key={idx}
+                      className={`flex flex-col items-center justify-center w-9 h-10 border rounded-md transition-all ${
+                        isCurrentActive
+                          ? 'bg-amber-100 border-amber-500 font-bold scale-105 shadow-sm text-amber-900 ring-2 ring-amber-300'
+                          : isVisited
+                          ? 'bg-emerald-50 border-emerald-400 text-emerald-800 font-semibold'
+                          : 'bg-slate-50 border-dashed border-slate-300 text-slate-400 opacity-60'
+                      }`}
+                    >
+                      <span className="text-xs">{isVisited ? val : '?'}</span>
+                      <span className="text-[8px] text-slate-400">[{idx}]</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            <div className="text-xs text-slate-500 font-mono">
+              Visited: <strong className="text-indigo-600">{Math.min(currentStepIndex + 1, traces.length)}</strong> / {traces.length}
+            </div>
+          </div>
+        )}
     </div>
   );
 }

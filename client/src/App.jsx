@@ -5,13 +5,22 @@ import Visualizer3D from './components/Visualizer3D';
 import Controls from './components/Controls';
 import CodeViewer from './components/CodeViewer';
 import DeductionPanel from './components/DeductionPanel';
+import Dashboard from './components/Dashboard';
+import IntroVideoModal from './components/IntroVideoModal';
 
 export default function App() {
-  const [dataStructure, setDataStructure] = useState('avl');
+  const [currentView, setCurrentView] = useState('intro'); // 'intro' | 'dashboard' | 'visualizer'
+  const [dataStructure, setDataStructure] = useState('bst');
   const [operation, setOperation] = useState('insert');
   const [inputData, setInputData] = useState('25,20,30,10,22,5');
   const [nodeShape, setNodeShape] = useState('circle');
   const [viewMode, setViewMode] = useState('2d');
+
+  // Load initial trace and code on mount
+  useEffect(() => {
+    fetchCppCode('bst');
+    runEngine('bst', 'insert', '25,20,30,10,22,5');
+  }, []);
 
   // Graph state (separated nodes, edges, weights, directed)
   const [graphDirected, setGraphDirected] = useState(false);
@@ -29,7 +38,7 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(false);
 
   const [cppCode, setCppCode] = useState('');
-  const [filename, setFilename] = useState('avl.hpp');
+  const [filename, setFilename] = useState('bst.hpp');
 
   const timerRef = useRef(null);
 
@@ -89,33 +98,36 @@ export default function App() {
     }
   };
 
-  // Initial load
-  useEffect(() => {
-    fetchCppCode('avl');
-    runEngine('avl', 'insert', '25,20,30,10,22,5');
-  }, []);
-
   // Handle data structure switch
-  const handleSelectDS = (newDS) => {
+  const handleSelectDS = (newDS, targetOp = null) => {
     setDataStructure(newDS);
-    let defaultOp = 'insert';
+    let defaultOp = targetOp || 'insert';
     let defaultData = '25,20,30,10,22,5';
 
     if (newDS === 'heapsort') {
-      defaultOp = 'max';
+      defaultOp = targetOp || 'max';
       defaultData = '12,11,13,5,6,7';
     } else if (newDS === 'graph') {
-      defaultOp = 'dijkstra';
+      defaultOp = targetOp || 'dijkstra';
       defaultData = buildGraphPayload();
     } else if (newDS === 'btree') {
-      defaultOp = 'insert';
+      defaultOp = targetOp || 'insert';
       defaultData = '10,20,5,6,12,30,7,17';
+    } else if (newDS === 'avl') {
+      defaultOp = targetOp || 'insert';
+      defaultData = '30,20,10,25,40';
     }
 
     setOperation(defaultOp);
     setInputData(defaultData);
     fetchCppCode(newDS);
     runEngine(newDS, defaultOp, defaultData);
+  };
+
+  // Launch specific module from Dashboard
+  const handleSelectModuleFromDashboard = (dsId, opId) => {
+    setCurrentView('visualizer');
+    handleSelectDS(dsId, opId);
   };
 
   // Playback loop
@@ -196,6 +208,17 @@ export default function App() {
 
   const currentTrace = traces[currentStepIndex] || null;
 
+  // View Mode: Fullscreen Intro Video
+  if (currentView === 'intro') {
+    return <IntroVideoModal onComplete={() => setCurrentView('dashboard')} />;
+  }
+
+  // View Mode: Dashboard Page
+  if (currentView === 'dashboard') {
+    return <Dashboard onSelectModule={handleSelectModuleFromDashboard} />;
+  }
+
+  // View Mode: Visualizer Workspace Page
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col text-slate-900 font-sans">
       {/* Header Bar */}
@@ -216,6 +239,7 @@ export default function App() {
         nodeShape={nodeShape}
         onChangeNodeShape={setNodeShape}
         onApplyPreset={handleApplyPreset}
+        onGoDashboard={() => setCurrentView('dashboard')}
         // Graph props
         graphDirected={graphDirected}
         onChangeGraphDirected={(directed) => {
@@ -244,11 +268,18 @@ export default function App() {
                 currentTrace={currentTrace}
                 nodeShape={nodeShape}
                 dataStructure={dataStructure}
+                operation={operation}
+                traces={traces}
+                currentStepIndex={currentStepIndex}
               />
             ) : (
               <Visualizer3D
                 currentTrace={currentTrace}
                 nodeShape={nodeShape}
+                dataStructure={dataStructure}
+                operation={operation}
+                traces={traces}
+                currentStepIndex={currentStepIndex}
               />
             )}
 
@@ -270,12 +301,14 @@ export default function App() {
 
           {/* Code Viewer & Deduction Column (5 cols) */}
           <div className="lg:col-span-5 flex flex-col space-y-3">
-            {/* Synchronized C++ Code Inspector */}
+            {/* Synchronized C++ Code, Pseudocode, Flowchart & Figurine Inspector */}
             <CodeViewer
               code={cppCode}
               filename={filename}
               activeLine={currentTrace?.codeLine}
               dataStructure={dataStructure}
+              operation={operation}
+              currentTrace={currentTrace}
             />
 
             {/* Step-by-Step Mathematical Solver Panel */}

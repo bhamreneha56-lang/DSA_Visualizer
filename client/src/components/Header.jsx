@@ -8,7 +8,8 @@ import {
   Box,
   Play,
   RotateCw,
-  Sparkles
+  Sparkles,
+  LayoutDashboard
 } from 'lucide-react';
 
 export default function Header({
@@ -25,6 +26,7 @@ export default function Header({
   nodeShape,
   onChangeNodeShape,
   onApplyPreset,
+  onGoDashboard,
   // Graph controls
   graphDirected,
   onChangeGraphDirected,
@@ -83,6 +85,17 @@ export default function Header({
       {/* Top Branding and View Mode Bar */}
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
         <div className="flex items-center space-x-3">
+          {onGoDashboard && (
+            <button
+              onClick={onGoDashboard}
+              className="flex items-center space-x-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 rounded-lg text-xs font-semibold transition-colors border border-border"
+              title="Return to Main Dashboard"
+            >
+              <LayoutDashboard className="w-3.5 h-3.5 text-indigo-600" />
+              <span>Dashboard</span>
+            </button>
+          )}
+
           <div className="bg-indigo-600 text-white p-2 rounded-lg shadow-sm">
             <GitBranch className="w-5 h-5" />
           </div>
@@ -91,7 +104,7 @@ export default function Header({
               DSA Step-by-Step Visualizer
             </h1>
             <p className="text-xs text-slate-500 font-medium">
-              Based on Dr. Varsha Patil's <em>Data Structures Using C++</em>
+              Interactive Algorithms & Data Structures in C++
             </p>
           </div>
         </div>

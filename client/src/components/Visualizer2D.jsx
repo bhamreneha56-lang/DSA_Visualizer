@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
 import { calculateTreeLayout, calculateHeapLayout, calculateGraphLayout, calculateBTreeLayout } from '../utils/treeLayout';
 
-export default function Visualizer2D({ currentTrace, nodeShape = 'circle', dataStructure }) {
+export default function Visualizer2D({ currentTrace, nodeShape = 'circle', dataStructure, operation, traces = [], currentStepIndex = 0 }) {
   const svgRef = useRef(null);
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -29,7 +29,33 @@ export default function Visualizer2D({ currentTrace, nodeShape = 'circle', dataS
     layout = calculateBTreeLayout(state.root, width, height);
   }
 
-  // Pan & Zoom handlers
+  const isTraversal =
+    dataStructure === 'bst' &&
+    (operation === 'inorder' || operation === 'preorder' || operation === 'postorder' || action.startsWith('VISIT_'));
+
+  // Collect traversal sequence visited up to currentStepIndex and total traversal sequence
+  const traversalHistory = [];
+  const fullTraversalSequence = [];
+  if (isTraversal && traces.length > 0) {
+    traces.forEach((t, idx) => {
+      const activeVal = t.activeNodes?.[0];
+      if (activeVal !== undefined) {
+        fullTraversalSequence.push(activeVal);
+        if (idx <= currentStepIndex) {
+          traversalHistory.push(activeVal);
+        }
+      }
+    });
+  }
+
+  const traversalTitle =
+    operation === 'inorder' || action === 'VISIT_INORDER'
+      ? 'Inorder Sequence (L-D-R):'
+      : operation === 'preorder' || action === 'VISIT_PREORDER'
+      ? 'Preorder Sequence (D-L-R):'
+      : operation === 'postorder' || action === 'VISIT_POSTORDER'
+      ? 'Postorder Sequence (L-R-D):'
+      : 'Traversal Sequence:';
   const handleMouseDown = (e) => {
     setIsDragging(true);
     setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
@@ -482,7 +508,41 @@ export default function Visualizer2D({ currentTrace, nodeShape = 'circle', dataS
         </g>
       </svg>
 
-      {/* Heap Array Synchronization Bar (if Heap data structure) */}
+      {/* Traversal Sequence Array Synchronization Bar (Preorder, Inorder, Postorder) */}
+      {isTraversal && fullTraversalSequence.length > 0 && (
+        <div className="bg-white border-t border-border px-4 py-2.5 flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <span className="text-xs font-semibold uppercase text-slate-500 tracking-wider">
+              {traversalTitle}
+            </span>
+            <div className="flex items-center space-x-1.5 overflow-x-auto py-1">
+              {fullTraversalSequence.map((val, idx) => {
+                const isCurrentActive = idx === currentStepIndex;
+                const isVisited = idx <= currentStepIndex;
+
+                return (
+                  <div
+                    key={idx}
+                    className={`flex flex-col items-center justify-center w-10 h-11 border rounded-md transition-all ${
+                      isCurrentActive
+                        ? 'bg-amber-100 border-amber-500 font-bold scale-105 shadow-sm text-amber-900 ring-2 ring-amber-300'
+                        : isVisited
+                        ? 'bg-emerald-50 border-emerald-400 text-emerald-800 font-semibold'
+                        : 'bg-slate-50 border-dashed border-slate-300 text-slate-400 opacity-60'
+                    }`}
+                  >
+                    <span className="text-sm">{isVisited ? val : '?'}</span>
+                    <span className="text-[9px] text-slate-400">[{idx}]</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          <div className="text-xs text-slate-500 font-mono">
+            Visited: <strong className="text-indigo-600">{Math.min(currentStepIndex + 1, fullTraversalSequence.length)}</strong> / {fullTraversalSequence.length}
+          </div>
+        </div>
+      )}
       {state.type === 'heap' && state.array && (
         <div className="bg-white border-t border-border px-4 py-2.5 flex items-center justify-between">
           <div className="flex items-center space-x-2">
